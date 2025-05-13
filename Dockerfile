@@ -1,21 +1,32 @@
 # Use a minimal Python base image
 FROM python:3.9-slim
 
-# Disable stdout buffering for real-time logs
-ENV PYTHONUNBUFFERED=1
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
 
 # Set working directory
 WORKDIR /app
 
-# Copy only necessary files
+# Install basic dependencies for Python and model tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    wget \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy project files
 COPY . .
 
-# Install dependencies with retry support
+# Install Python dependencies (including torch)
 RUN pip install --upgrade pip && \
-    pip install --retries 5 --timeout 60 -r requirements.txt
+    pip install --no-cache-dir torch -r requirements.txt
 
-# Expose the port used by the app
+# Expose the port your app will run on
 EXPOSE 5000
 
-# Start the app using gunicorn
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000"]
+# Run the application with Gunicorn
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000", "--workers=1", "--threads=2"]
