@@ -4,3 +4,8 @@ __pycache__/
 *.pyd
 temp_firebase_key.json
 .env
+.env
+.venv/
+wheels/
+*.whl
+.git/

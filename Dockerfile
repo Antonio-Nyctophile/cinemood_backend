@@ -1,5 +1,8 @@
 # Use a minimal Python base image
-FROM python:3.9
+FROM python:3.9-slim
+
+# Disable stdout buffering for real-time logs
+ENV PYTHONUNBUFFERED=1
 
 # Set working directory
 WORKDIR /app
